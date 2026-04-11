@@ -33,6 +33,7 @@ Key principles:
 - Not everything the user listed fits. Delete for them.
 - One area per day. One reservation-required spot per day max.
 - Itineraries should be smooth, not packed.
+- All user-facing questions follow the **4-beat format**: Re-ground → Simplify → Recommend → Options. See `references/trip-planning.md` § 用户交互 for examples and anti-patterns.
 
 ## Phase 2: Research via 小红书
 
