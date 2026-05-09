@@ -43,7 +43,8 @@ Key principles:
 
 ## Phase 2: Research via 大众点评 + 小红书
 
-Read `references/xhs-research.md` for the full OpenCLI + CDP workflow.
+Read `references/dianping-research.md` for the 大众点评 OpenCLI workflow.
+Read `references/xhs-research.md` for the 小红书 OpenCLI + CDP workflow.
 
 For restaurants, use 大众点评 as the main Chinese dining signal for taste,
 queue risk, value, and obvious traps. Use 小红书 to supplement atmosphere,
@@ -103,7 +104,7 @@ gh repo create REPO --public --source=. --push
 
 | Tool | Purpose | Install |
 |------|---------|---------|
-| [OpenCLI](https://github.com/jackwener/OpenCLI) | Chrome CDP bridge for 小红书调研 | `npm install -g @jackwener/opencli` |
+| [OpenCLI](https://github.com/jackwener/OpenCLI) | 大众点评 adapter + 小红书调研 | `npm install -g @jackwener/opencli` |
 | Chrome/Chromium | 浏览器 + 远程调试 | 已有 |
 | [Leaflet.js](https://leafletjs.com) | 地图渲染（CDN 引入，无需安装） | template.html 内置 |
 | [gh CLI](https://cli.github.com) | GitHub 仓库创建（可选） | `brew install gh` |
@@ -111,6 +112,7 @@ gh repo create REPO --public --source=. --push
 ## Resources
 
 - `references/trip-planning.md` — itinerary planning methodology, input/output templates, selection principles, common pitfalls
+- `references/dianping-research.md` — 大众点评 OpenCLI search/shop workflow, dining decision signals, writeback format
 - `references/xhs-research.md` — OpenCLI installation, Chrome CDP setup, 小红书 search workflow, API details, filtering criteria
 - `assets/template.html` — single-file HTML map template (Leaflet + Apple design system)
 - [awesome-design-md](https://github.com/VoltAgent/awesome-design-md) — 60+ brand design systems (Apple, Vercel, Stripe, Linear, etc.) for alternative styling

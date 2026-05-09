@@ -73,7 +73,7 @@ git clone https://github.com/hiyeshu/trip-map-builder.git ~/.claude/skills/trip-
 
 两段式流程：先粗筛搜索结果（10-20 条），再精读最相关的 2-3 条详情页。
 
-详见 [`references/xhs-research.md`](references/xhs-research.md)
+详见 [`references/dianping-research.md`](references/dianping-research.md) 和 [`references/xhs-research.md`](references/xhs-research.md)
 
 ### Phase 3：生成地图页面
 
@@ -93,7 +93,7 @@ git clone https://github.com/hiyeshu/trip-map-builder.git ~/.claude/skills/trip-
 
 | 工具 | 用途 | 安装 |
 |------|------|------|
-| [OpenCLI](https://github.com/jackwener/OpenCLI) | Chrome CDP 桥接，小红书调研 | `npm install -g @jackwener/opencli` |
+| [OpenCLI](https://github.com/jackwener/OpenCLI) | 大众点评 adapter + 小红书调研 | `npm install -g @jackwener/opencli` |
 | Chrome / Chromium | 浏览器 + 远程调试 | — |
 | [Leaflet.js](https://leafletjs.com) | 地图渲染 | CDN 引入，无需安装 |
 | [gh CLI](https://cli.github.com) | GitHub 仓库创建（可选） | `brew install gh` |
@@ -102,12 +102,15 @@ git clone https://github.com/hiyeshu/trip-map-builder.git ~/.claude/skills/trip-
 
 ```
 trip-map-builder/
+├── CLAUDE.md                 # 项目地图，记录目录职责
 ├── SKILL.md                  # 技能入口，三阶段流程
 ├── README.md                 # 本文件
 ├── assets/
 │   └── template.html         # 可复用 HTML 地图模板
 └── references/
+    ├── CLAUDE.md             # references 局部地图
     ├── trip-planning.md      # 行程规划方法论
+    ├── dianping-research.md  # 大众点评调研 + OpenCLI adapter
     └── xhs-research.md       # 小红书调研 + OpenCLI 安装
 ```
 
