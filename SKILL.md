@@ -20,6 +20,49 @@ The output is a **reference itinerary**, not a script the traveler must obey.
 During the trip, weather, current location, fatigue, and hunger can override
 the original plan.
 
+## Shared memory
+
+Before planning or building, read `~/.trip-map-builder/MEMORY.md` if it
+exists. Use it only for durable traveler context:
+
+- pace preference
+- food and drink preferences
+- budget habits
+- payment and navigation preferences
+- previously generated trip outputs
+- recurring constraints and unresolved follow-ups
+
+If the file does not exist, continue normally. Do not block on memory setup.
+
+Do not store raw screenshots, passport data, booking codes, full chat logs, or
+other sensitive/private material.
+
+After each completed trip plan, research pass, or map build, update
+`~/.trip-map-builder/MEMORY.md` with only durable facts:
+
+```md
+# Trip Map Builder Memory
+
+## Traveler Defaults
+- Departure city:
+- Pace:
+- Food preferences:
+- Budget habits:
+- Payment preference:
+- Navigation preference:
+- Language preference:
+
+## Past Trips
+| Trip | Dates | Destination | Output | Notes |
+|------|-------|-------------|--------|-------|
+
+## Reusable Preferences
+-
+
+## Open Threads
+-
+```
+
 ## Phase 1: Plan the itinerary
 
 Read `references/trip-planning.md` for the full methodology.
