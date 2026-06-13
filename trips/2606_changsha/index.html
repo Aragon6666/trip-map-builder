@@ -1,0 +1,140 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>长沙 3晚4天轻松情侣行</title>
+<meta name="description" content="深圳出发长沙 3晚4天轻松情侣行：五一广场住宿、湖南博物院、岳麓书院、橘子洲、茶颜悦色和不排队美食策略。">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css">
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<script src="./trip_data.js"></script>
+<style>
+:root { --bg:#f5f5f7; --card:#fff; --text:#1d1d1f; --muted:#6e6e73; --line:rgba(60,60,67,.14); --blue:#007aff; --orange:#ff9500; --green:#34c759; --purple:#af52de; --red:#ff3b30; }
+* { box-sizing:border-box; }
+body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",sans-serif; background:var(--bg); color:var(--text); letter-spacing:0; }
+#map { height:40vh; min-height:280px; position:sticky; top:0; z-index:2; }
+.tabs { position:sticky; top:40vh; z-index:3; display:flex; gap:8px; overflow:auto; padding:12px 14px; background:rgba(255,255,255,.9); backdrop-filter:blur(16px); border-bottom:1px solid var(--line); }
+.tabs::-webkit-scrollbar { display:none; }
+.tab { border:0; border-radius:999px; padding:8px 14px; background:#ececf0; color:var(--muted); font-weight:700; white-space:nowrap; }
+.tab.active { background:var(--blue); color:#fff; }
+.content { max-width:760px; margin:0 auto; padding:18px 16px 34px; }
+.hero { padding:22px 2px 14px; }
+.hero h1 { margin:0 0 8px; font-size:28px; line-height:1.15; }
+.hero p { margin:0; color:var(--muted); line-height:1.55; }
+.grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:10px; margin:14px 0 18px; }
+.info,.card,.route,.weather,.pack { background:var(--card); border:1px solid var(--line); border-radius:12px; box-shadow:0 1px 3px rgba(0,0,0,.04); }
+.info { padding:14px; }
+.label { color:var(--muted); font-size:12px; font-weight:800; margin-bottom:5px; }
+.value { font-weight:700; line-height:1.45; font-size:14px; }
+.section { margin:22px 0 8px; color:var(--muted); font-size:13px; font-weight:900; }
+.day-head { padding:8px 0 10px; }
+.day-head h2 { margin:0 0 4px; font-size:23px; }
+.day-head p { margin:0; color:var(--muted); line-height:1.5; }
+.route { padding:12px 14px; color:var(--muted); line-height:1.6; font-size:14px; margin-bottom:14px; }
+.timeline { position:relative; padding-left:24px; }
+.timeline:before { content:""; position:absolute; left:8px; top:14px; bottom:14px; width:2px; background:var(--line); }
+.item { position:relative; margin:0 0 10px; }
+.dot { position:absolute; left:-21px; top:20px; width:10px; height:10px; border-radius:50%; border:2px solid var(--bg); }
+.food { background:var(--red); } .spot { background:var(--blue); } .hotel { background:var(--orange); } .drink { background:var(--purple); } .transport { background:var(--muted); }
+.card { padding:14px 15px; }
+.time { color:#a0a0a6; font-size:12px; font-weight:800; }
+.name { margin-top:2px; font-size:17px; font-weight:800; }
+.desc { margin-top:4px; color:var(--muted); font-size:14px; line-height:1.55; }
+.budget { display:inline-block; margin-top:8px; background:#f2f2f7; color:var(--muted); border-radius:8px; padding:4px 8px; font-size:12px; font-weight:700; }
+.detail { margin-top:10px; padding-top:10px; border-top:1px solid var(--line); color:var(--muted); font-size:13px; line-height:1.65; }
+.links { margin-top:10px; display:flex; flex-wrap:wrap; gap:8px; }
+.btn { border:0; border-radius:8px; padding:8px 11px; color:#fff; font-size:13px; font-weight:800; text-decoration:none; }
+.nav { background:var(--blue); } .xhs { background:#ff2442; } .dp { background:#ffa700; } .rsv { background:var(--green); }
+.weather,.pack { padding:13px 15px; margin-bottom:10px; line-height:1.6; }
+.weather b { display:block; margin-bottom:4px; }
+.pack { display:flex; gap:10px; }
+.box { width:18px; height:18px; flex:0 0 auto; border:2px solid var(--line); border-radius:5px; margin-top:2px; }
+.pack.important .box { border-color:var(--orange); background:rgba(255,149,0,.12); }
+.warn { color:#bf5b00; }
+@media (max-width:520px) { .grid { grid-template-columns:1fr; } .hero h1 { font-size:25px; } }
+</style>
+</head>
+<body>
+<div id="map"></div>
+<div id="tabs" class="tabs"></div>
+<main id="content" class="content"></main>
+<script>
+const COLORS = { food:'#ff3b30', spot:'#007aff', hotel:'#ff9500', drink:'#af52de', transport:'#8e8e93' };
+const EMOJI = { food:'餐', spot:'景', hotel:'宿', drink:'饮', transport:'行' };
+const map = L.map('map', { center:[HOTEL.lat,HOTEL.lng], zoom:12, zoomControl:false });
+L.control.zoom({ position:'topright' }).addTo(map);
+L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', { maxZoom:19, attribution:'&copy; OpenStreetMap &copy; CARTO' }).addTo(map);
+let layers = [];
+function icon(type, color) {
+  return L.divIcon({ className:'', html:`<div style="width:30px;height:30px;border-radius:50%;background:${color};border:3px solid #fff;display:flex;align-items:center;justify-content:center;color:#fff;font-size:12px;font-weight:800;box-shadow:0 2px 9px rgba(0,0,0,.2)">${EMOJI[type]||'点'}</div>`, iconSize:[30,30], iconAnchor:[15,15] });
+}
+function clearMap(){ layers.forEach(l=>map.removeLayer(l)); layers=[]; }
+function navUrl(loc){ return `https://uri.amap.com/marker?position=${loc.lng},${loc.lat}&name=${encodeURIComponent(loc.name)}&coordinate=wgs84&callnative=1`; }
+function xhsUrl(loc){ return `https://www.xiaohongshu.com/search_result?keyword=${encodeURIComponent(loc.xhsKeyword||loc.name)}&source=web_explore_feed`; }
+function dpUrl(loc){ return `https://m.dianping.com/searchshop?keyword=${encodeURIComponent(loc.dianpingKeyword||loc.name)}`; }
+function esc(s){ return String(s||'').replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[m])); }
+function locCard(loc){
+  const xhs = loc.xhsKeyword ? `<a class="btn xhs" href="${xhsUrl(loc)}" target="_blank">小红书</a>` : '';
+  const dp = (loc.type==='food'||loc.type==='drink'||loc.dianpingKeyword) ? `<a class="btn dp" href="${dpUrl(loc)}" target="_blank">大众点评</a>` : '';
+  const rsv = loc.reserve ? `<a class="btn rsv" href="${loc.reserve}" target="_blank">预约</a>` : '';
+  return `<div class="item"><div class="dot ${loc.type}"></div><div class="card">
+    <div class="time">${loc.time==='—'?'备选':esc(loc.time)}</div>
+    <div class="name">${esc(loc.name)}</div>
+    <div class="desc">${esc(loc.desc)}</div>
+    ${loc.budget?`<div class="budget">${esc(loc.budget)}</div>`:''}
+    <div class="links"><a class="btn nav" href="${navUrl(loc)}" target="_blank">高德导航</a>${xhs}${dp}${rsv}</div>
+    ${loc.detail?`<div class="detail">${esc(loc.detail)}</div>`:''}
+  </div></div>`;
+}
+function overview(){
+  return `<div class="hero"><h1>长沙 3晚4天轻松情侣行</h1><p>五一广场住宿中心，湖南博物院、岳麓书院、橘子洲和茶颜悦色自然穿插；少辣、不赶路、不为网红店长队消耗体力。</p></div>
+  <div class="grid">
+    <div class="info"><div class="label">住宿建议</div><div class="value">五一广场 / 黄兴广场 / 湘江中路，干净好评优先</div></div>
+    <div class="info"><div class="label">交通</div><div class="value">深圳往返长沙飞机；市内地铁优先，低效段打车</div></div>
+    <div class="info"><div class="label">餐饮</div><div class="value">少辣/不辣优先，排队 15-20 分钟即换</div></div>
+    <div class="info"><div class="label">预算</div><div class="value">经济舒适；酒店约 ¥300-600/晚起，按实际浮动</div></div>
+  </div>
+  <div class="section">行程概览</div>
+  ${DAYS.slice(1,5).map(d=>`<div class="card" style="margin-bottom:8px" onclick="go(${d.id})"><div class="name">${d.label} · ${d.title}</div><div class="desc">${d.date}</div></div>`).join('')}
+  <div class="section">订前复核</div>
+  <div class="weather"><b>需要确认</b>航班时间、最终酒店、湖南博物院预约、岳麓书院开放/门票、橘子洲景区交通、出发前天气。</div>`;
+}
+function renderDay(id){
+  const d = DAYS.find(x=>x.id===id);
+  if(d.type==='packing') return `<div class="day-head"><h2>${d.title}</h2><p>${d.date}</p></div><div class="section">天气</div>${WEATHER.map(w=>`<div class="weather"><b>${esc(w.date)}</b>${esc(w.summary)}<br><span class="warn">${esc(w.impact)}</span></div>`).join('')}<div class="section">清单</div>${PACKING.map(p=>`<div class="pack ${p.important?'important':''}"><span class="box"></span><span>${p.text}</span></div>`).join('')}`;
+  const main = d.locations.filter(l=>l.time!=='—');
+  const alt = d.locations.filter(l=>l.time==='—');
+  return `<div class="day-head"><h2>${d.title}</h2><p>${d.date}</p></div><div class="route"><b>路线：</b>${esc(d.route||'')}</div><div class="section">行程</div><div class="timeline">${main.map(locCard).join('')}</div>${alt.length?`<div class="section">备选</div><div class="timeline">${alt.map(locCard).join('')}</div>`:''}`;
+}
+function showMap(id){
+  clearMap();
+  const day = DAYS.find(d=>d.id===id);
+  let locs = id===0 ? DAYS.flatMap(d=>d.locations||[]).filter(l=>l.time!=='—') : (day.locations||[]).filter(l=>l.time!=='—');
+  const pts = [];
+  locs.forEach(loc => {
+    if(!loc.lat) return;
+    const marker = L.marker([loc.lat,loc.lng], { icon:icon(loc.type, id===0 ? COLORS[loc.type] : day.color) }).addTo(map).bindPopup(`<b>${esc(loc.name)}</b><br>${esc(loc.desc)}`);
+    layers.push(marker); pts.push([loc.lat,loc.lng]);
+  });
+  if(id!==0 && pts.length>1){ const line=L.polyline(pts,{color:day.color,weight:3,opacity:.55,dashArray:'6 6'}).addTo(map); layers.push(line); }
+  if(pts.length) map.fitBounds(pts,{padding:[36,36],maxZoom:14}); else map.setView([HOTEL.lat,HOTEL.lng],12);
+}
+const tabs = document.getElementById('tabs');
+DAYS.forEach(d => {
+  const btn=document.createElement('button');
+  btn.className='tab';
+  btn.dataset.id=d.id;
+  btn.textContent=d.label;
+  btn.onclick=()=>go(d.id);
+  tabs.appendChild(btn);
+});
+function go(id){
+  document.querySelectorAll('.tab').forEach(t=>t.classList.toggle('active', Number(t.dataset.id)===id));
+  document.getElementById('content').innerHTML = id===0 ? overview() : renderDay(id);
+  showMap(id);
+}
+go(0);
+</script>
+</body>
+</html>
+
