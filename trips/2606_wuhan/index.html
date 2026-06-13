@@ -216,6 +216,20 @@ a:hover { text-decoration: underline; }
 .legend-item { display: flex; align-items: center; gap: 5px; }
 .legend-dot { width: 8px; height: 8px; border-radius: 50%; }
 
+
+/* Packing + weather */
+.weather-grid { display: grid; grid-template-columns: 1fr; gap: 10px; margin-bottom: 14px; }
+.weather-card { background: var(--bg-elevated); border-radius: var(--radius-md); padding: 13px 15px; box-shadow: var(--shadow-sm); border-left: 4px solid var(--accent); }
+.weather-card .weather-date { font-size: 13px; font-weight: 700; margin-bottom: 4px; }
+.weather-card .weather-main { font-size: 14px; color: var(--text-primary); line-height: 1.5; }
+.weather-card .weather-note { font-size: 13px; color: var(--text-secondary); line-height: 1.55; margin-top: 4px; }
+.packing-list { display: grid; gap: 9px; }
+.pack-item { display: flex; gap: 10px; align-items: flex-start; background: var(--bg-elevated); border-radius: var(--radius-md); padding: 12px 14px; box-shadow: var(--shadow-sm); font-size: 14px; line-height: 1.5; }
+.pack-check { width: 18px; height: 18px; border-radius: 5px; border: 1.5px solid var(--separator); flex: 0 0 auto; margin-top: 1px; background: var(--bg-tertiary); }
+.pack-item.important .pack-check { border-color: var(--tint-orange); background: rgba(255,149,0,.12); }
+.pack-item strong { color: var(--text-primary); }
+.source-note { color: var(--text-tertiary); font-size: 12px; line-height: 1.5; margin-top: 12px; }
+
 /* ── Leaflet overrides ── */
 .leaflet-popup-content-wrapper { border-radius: var(--radius-md) !important; box-shadow: var(--shadow-lg) !important; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif !important; }
 .leaflet-popup-content { font-size: 14px !important; line-height: 1.5 !important; margin: 12px 14px !important; }
@@ -301,7 +315,35 @@ const DAYS = [
       { name: '江汉路附近午餐/打包', lat: 30.5832, lng: 114.2900, type: 'food', time: '12:30', desc: '返程前不冒险排队，选酒店附近干净、出餐稳定的店。', budget: '约 ¥40-100/人', detail: '你不太能吃辣，点单关键词：少辣/不辣、藕汤、豆皮、清炒、蒸菜。', pay: { cash: 1, alipay: 1, wechat: 1 }, xhsKeyword: '江汉路 不辣 午餐 武汉', dianpingKeyword: '江汉路 午餐 不辣', gmap: '江汉路 午餐 武汉' },
       { name: '武汉天河国际机场', lat: 30.7766, lng: 114.2081, type: 'transport', time: '14:30', desc: '按下午航班预留去机场时间。江汉路/循礼门区域可地铁2号线或打车。', detail: '建议至少提前 2.5 小时从市区出发，端午返程日要给安检和路况留余量。', gmap: '武汉天河国际机场' }
     ]
+  },
+  {
+    id: 5,
+    label: '行李',
+    type: 'packing',
+    date: '出发前准备｜天气驱动清单',
+    title: '行李箱清单',
+    color: '#ff2d55',
+    locations: []
   }
+];
+
+
+const WEATHER = [
+  { date: '6月19日 周五', summary: '阵雨偏强，约 24.8-28.0°C，降水概率 98%，预估降水 93.0mm。', impact: '抵达日减少户外停留；江滩夜景只在雨小或短暂停雨时执行，优先酒店附近吃饭休息。' },
+  { date: '6月20日 周六', summary: '阵雨，约 24.4-29.3°C，降水概率 83%，预估降水 18.0mm。', impact: '黄鹤楼和昙华林缩短户外时间；雨大时把户外散步替换为室内咖啡/商场，轮渡视现场天气决定。' },
+  { date: '6月21日 周日', summary: '小雨/毛毛雨，约 25.3-31.1°C，降水概率 75%，预估降水 2.1mm。', impact: '省博作为室内核心点很合适；东湖只保留雨停窗口的短距离湖边散步。' },
+  { date: '6月22日 周一', summary: '阵雨，约 25.5-29.9°C，降水概率 80%，预估降水 16.2mm。', impact: '最后一天不要跑远；古德寺和黎黄陂路二选一，留足去机场时间。' }
+];
+
+const PACKING = [
+  { text: '<strong>雨具</strong>：折叠伞 2 把或轻便雨衣，鞋子尽量选防滑快干，带一个装湿伞/湿衣的小袋。', important: true },
+  { text: '<strong>衣物</strong>：武汉 6 月闷热，带短袖/轻薄裤裙为主；室内空调和飞机上可备一件薄外套。', important: true },
+  { text: '<strong>防潮保护</strong>：相机、电脑、iPad 建议放防水内胆包或密封袋，雨天江边拍照注意防水。', important: true },
+  { text: '电子设备：电脑、充电器、鼠标、iPad、手机充电器、充电宝。' },
+  { text: '个人护理：刮胡刀、指甲钳、牙刷牙膏、纸巾/湿巾、常用护肤品。' },
+  { text: '拍摄记录：相机、存储卡、电池/充电器、镜头布。' },
+  { text: '证件与支付：身份证、银行卡、少量现金。' },
+  { text: '常用药品：肠胃药、感冒药、创可贴；雨天行走可备一双备用袜子。' }
 ];
 
 // ╔══════════════════════════════════════════════════════════════╗
@@ -399,8 +441,10 @@ function showDay(idx) {
   }
   const day = DAYS.find(d=>d.id===idx);
   if(!day) return;
+  if(day.type==='packing') { if(HOTEL.lat) map.setView([HOTEL.lat, HOTEL.lng], 12); return; }
+  const locs = day.locations || [];
   const coords = [];
-  day.locations.forEach(l => {
+  locs.forEach(l => {
     if(!l.lat) return;
     const m = L.marker([l.lat,l.lng], { icon: icon(day.color, emojis[l.type]||'📌') }).addTo(map);
     const gmapQ = l.gmap||encodeURIComponent(l.name+' Tokyo');
@@ -482,10 +526,28 @@ function locCard(loc, dayIdx) {
   return `<div class="tl-item"><div class="tl-dot ${dot}"></div><div class="card" onclick="if(!event.target.closest('.btn,.links'))toggle('${uid}')"><div class="time">${loc.time!=='—'?loc.time:'备选'}</div><div class="name">${bdg} ${loc.name}</div><div class="desc">${loc.desc}</div>${loc.budget?'<div class="budget">'+loc.budget+'</div>':''}${payChips(loc.pay)}<div class="links">${lnk}</div>${loc.detail?'<div class="details" id="'+uid+'">'+loc.detail.replace(/\n/g,'<br>')+'</div>':''}</div></div>`;
 }
 
+
+function renderWeather() {
+  if (!WEATHER || !WEATHER.length) return '<div class="pay-summary"><h4>天气</h4>当前未写入可靠逐日天气。若出行时间超过 14 天，不要虚编天气；请在出发前 7-10 天刷新。</div>';
+  return '<div class="weather-grid">' + WEATHER.map(w => '<div class="weather-card"><div class="weather-date">' + w.date + '</div><div class="weather-main">' + w.summary + '</div><div class="weather-note">' + w.impact + '</div></div>').join('') + '</div>';
+}
+
+function renderPacking(d) {
+  const items = PACKING || [];
+  let h = '<div class="day-head"><h2>' + (d.title || '行李箱清单') + '</h2><p>' + (d.date || '出发前准备') + '</p></div>';
+  h += '<div class="section-head">每日天气与行程调整</div>' + renderWeather();
+  h += '<div class="section-head">行李待办</div><div class="packing-list">';
+  h += items.map(item => '<div class="pack-item ' + (item.important ? 'important' : '') + '"><span class="pack-check"></span><span>' + item.text + '</span></div>').join('');
+  h += '</div><div class="source-note">天气来源：Open-Meteo Forecast API。天气会变化，出发前 1-2 天请再次复核。</div>';
+  return h;
+}
+
 function renderDay(idx) {
   const d = DAYS.find(x=>x.id===idx); if(!d) return '';
-  const main = d.locations.filter(l=>l.time!=='—');
-  const alt = d.locations.filter(l=>l.time==='—');
+  if(d.type==='packing') return renderPacking(d);
+  const locs = d.locations || [];
+  const main = locs.filter(l=>l.time!=='—');
+  const alt = locs.filter(l=>l.time==='—');
   let h = `<div class="day-head"><h2>${d.title}</h2><p>${d.date}</p></div>`;
   if(main.length) { h += '<div class="section-head">行程</div><div class="timeline">'; main.forEach(l => h += locCard(l, idx)); h += '</div>'; }
   if(alt.length) { h += '<div class="section-head">备选</div><div class="timeline">'; alt.forEach(l => h += locCard(l, idx)); h += '</div>'; }
@@ -563,5 +625,6 @@ function closeAS() { asOverlay.classList.remove('show'); }
 </script>
 </body>
 </html>
+
 
 

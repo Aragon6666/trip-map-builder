@@ -1,5 +1,5 @@
 ﻿// Structured trip data for trips/2606_wuhan/index.html.
-// Keep this in sync with the embedded HOTEL and DAYS block until build_trip.js exists.
+// Keep this in sync with the embedded HOTEL, DAYS, WEATHER and PACKING block until build_trip.js exists.
 
 const HOTEL = { name: '推荐住宿中心：江汉路 / 循礼门', lat: 30.5849, lng: 114.2857 };
 
@@ -65,5 +65,34 @@ const DAYS = [
       { name: '江汉路附近午餐/打包', lat: 30.5832, lng: 114.2900, type: 'food', time: '12:30', desc: '返程前不冒险排队，选酒店附近干净、出餐稳定的店。', budget: '约 ¥40-100/人', detail: '你不太能吃辣，点单关键词：少辣/不辣、藕汤、豆皮、清炒、蒸菜。', pay: { cash: 1, alipay: 1, wechat: 1 }, xhsKeyword: '江汉路 不辣 午餐 武汉', dianpingKeyword: '江汉路 午餐 不辣', gmap: '江汉路 午餐 武汉' },
       { name: '武汉天河国际机场', lat: 30.7766, lng: 114.2081, type: 'transport', time: '14:30', desc: '按下午航班预留去机场时间。江汉路/循礼门区域可地铁2号线或打车。', detail: '建议至少提前 2.5 小时从市区出发，端午返程日要给安检和路况留余量。', gmap: '武汉天河国际机场' }
     ]
+  },
+  {
+    id: 5,
+    label: '行李',
+    type: 'packing',
+    date: '出发前准备｜天气驱动清单',
+    title: '行李箱清单',
+    color: '#ff2d55',
+    locations: []
   }
 ];
+
+
+const WEATHER = [
+  { date: '6月19日 周五', summary: '阵雨偏强，约 24.8-28.0°C，降水概率 98%，预估降水 93.0mm。', impact: '抵达日减少户外停留；江滩夜景只在雨小或短暂停雨时执行，优先酒店附近吃饭休息。' },
+  { date: '6月20日 周六', summary: '阵雨，约 24.4-29.3°C，降水概率 83%，预估降水 18.0mm。', impact: '黄鹤楼和昙华林缩短户外时间；雨大时把户外散步替换为室内咖啡/商场，轮渡视现场天气决定。' },
+  { date: '6月21日 周日', summary: '小雨/毛毛雨，约 25.3-31.1°C，降水概率 75%，预估降水 2.1mm。', impact: '省博作为室内核心点很合适；东湖只保留雨停窗口的短距离湖边散步。' },
+  { date: '6月22日 周一', summary: '阵雨，约 25.5-29.9°C，降水概率 80%，预估降水 16.2mm。', impact: '最后一天不要跑远；古德寺和黎黄陂路二选一，留足去机场时间。' }
+];
+
+const PACKING = [
+  { text: '<strong>雨具</strong>：折叠伞 2 把或轻便雨衣，鞋子尽量选防滑快干，带一个装湿伞/湿衣的小袋。', important: true },
+  { text: '<strong>衣物</strong>：武汉 6 月闷热，带短袖/轻薄裤裙为主；室内空调和飞机上可备一件薄外套。', important: true },
+  { text: '<strong>防潮保护</strong>：相机、电脑、iPad 建议放防水内胆包或密封袋，雨天江边拍照注意防水。', important: true },
+  { text: '电子设备：电脑、充电器、鼠标、iPad、手机充电器、充电宝。' },
+  { text: '个人护理：刮胡刀、指甲钳、牙刷牙膏、纸巾/湿巾、常用护肤品。' },
+  { text: '拍摄记录：相机、存储卡、电池/充电器、镜头布。' },
+  { text: '证件与支付：身份证、银行卡、少量现金。' },
+  { text: '常用药品：肠胃药、感冒药、创可贴；雨天行走可备一双备用袜子。' }
+];
+

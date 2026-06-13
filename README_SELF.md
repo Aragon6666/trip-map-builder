@@ -17,10 +17,11 @@ trips/                          # 每次旅行一个目录
     requirements.md             # 本次旅行个性化需求，短期记忆
     research.md                 # 调研记录和待复核事项
     itinerary.md                # 人类可读每日行程
-    trip_data.js                # HOTEL + DAYS 结构化数据
+    trip_data.js                # HOTEL + DAYS + WEATHER + PACKING 结构化数据
     index.html                  # 本次旅行地图页
 assets/template.html            # 通用地图模板
 references/                     # 通用规划与调研方法论
+  weather-and-packing.md        # 天气信源、可靠性和行李清单规则
 index.html                      # 旅行列表首页
 ```
 
@@ -216,3 +217,10 @@ await bridge.send('Page.navigate', {
 
 
 
+
+## 天气和行李
+
+- 默认天气信源：Open-Meteo Forecast API，无需 API Key。
+- 出行日期在未来 14 天内才写入逐日天气；超过 14 天不虚编，只提示出发前刷新。
+- 每个旅行地图页最后应包含“行李”tab，用待办样式展示天气影响和行李清单。
+- 固定物品：电脑、充电器、鼠标、iPad、刮胡刀、指甲钳、相机。

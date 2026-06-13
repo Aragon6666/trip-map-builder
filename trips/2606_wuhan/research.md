@@ -39,3 +39,15 @@ Booking filter:
 - 当前环境未安装 `opencli`，因此未按仓库文档自动抓取大众点评/小红书。
 - `trips/2606_wuhan/index.html` 已为地点保留 `xhsKeyword` 和 `dianpingKeyword`，手机端可直接跳转搜索。
 - 关键开放时间、预约、票价、轮渡班次仍需出发前一天按官方渠道复核。
+
+## Weather Source
+
+Default source: Open-Meteo Forecast API (`https://open-meteo.com/en/docs`). It does not require an API Key and can return daily temperature, precipitation probability, precipitation sum, weather code, and wind speed by latitude/longitude.
+
+Wuhan query used on 2026-06-14:
+
+```text
+https://api.open-meteo.com/v1/forecast?latitude=30.5849&longitude=114.2857&daily=weather_code,temperature_2m_max,temperature_2m_min,precipitation_probability_max,precipitation_sum,wind_speed_10m_max&timezone=Asia%2FShanghai&forecast_days=10
+```
+
+Planning impact: 6月19日和6月20日降雨风险较高，因此户外江滩、黄鹤楼、昙华林、轮渡都需要看现场雨势执行；省博、商场、咖啡馆作为雨天缓冲。
