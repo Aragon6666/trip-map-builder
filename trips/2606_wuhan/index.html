@@ -1,0 +1,567 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>武汉端午 3晚4天轻松情侣行程地图</title>
+<meta name="description" content="深圳出发，6月19日下午到武汉，6月22日下午返程。江汉路/循礼门住宿中心，黄鹤楼、江滩、省博、东湖、街巷小吃轻松路线。">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+<style>
+/* ═══════════════════════════════════════════
+   Design System — edit :root to change theme
+   ═══════════════════════════════════════════ */
+:root {
+  --bg-primary:    #ffffff;
+  --bg-secondary:  #f5f5f7;
+  --bg-tertiary:   #fbfbfd;
+  --bg-grouped:    #f2f2f7;
+  --bg-elevated:   #ffffff;
+  --text-primary:   #1d1d1f;
+  --text-secondary: #86868b;
+  --text-tertiary:  #aeaeb2;
+  --accent:        #0071e3;
+  --accent-hover:  #0077ed;
+  --tint-red:    #ff3b30;
+  --tint-orange: #ff9500;
+  --tint-green:  #34c759;
+  --tint-blue:   #007aff;
+  --tint-purple: #af52de;
+  --tint-pink:   #ff2d55;
+  --separator:  rgba(60, 60, 67, .12);
+  --shadow-sm:  0 1px 3px rgba(0,0,0,.06), 0 1px 2px rgba(0,0,0,.04);
+  --shadow-md:  0 4px 14px rgba(0,0,0,.08);
+  --shadow-lg:  0 8px 30px rgba(0,0,0,.12);
+  --radius-sm:  8px;
+  --radius-md:  12px;
+  --radius-lg:  16px;
+  --radius-xl:  20px;
+  --safe-top:    env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+}
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display",
+               "Helvetica Neue", "Arial", sans-serif;
+  background: var(--bg-secondary);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  line-height: 1.47059;
+  letter-spacing: -0.022em;
+}
+a { color: var(--accent); text-decoration: none; }
+a:hover { text-decoration: underline; }
+
+/* ── Map ── */
+#map { width: 100%; height: 40vh; min-height: 280px; position: sticky; top: 0; z-index: 100; }
+.locate-btn {
+  width: 36px; height: 36px; border-radius: 8px;
+  background: rgba(255,255,255,.92); backdrop-filter: blur(8px);
+  border: none; box-shadow: 0 1px 4px rgba(0,0,0,.18);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 18px; cursor: pointer; -webkit-tap-highlight-color: transparent;
+}
+.locate-btn.active { color: #007aff; }
+@keyframes loc-pulse {
+  0%   { transform: scale(1); opacity: .55; }
+  100% { transform: scale(2.4); opacity: 0; }
+}
+.loc-pulse {
+  width: 14px; height: 14px; border-radius: 50%;
+  background: rgba(0,122,255,.25);
+  animation: loc-pulse 1.6s ease-out infinite;
+}
+
+/* ── Tabs ── */
+.tabs {
+  display: flex; gap: 6px; padding: 12px 16px; overflow-x: auto; -webkit-overflow-scrolling: touch;
+  background: rgba(255,255,255,.85); -webkit-backdrop-filter: saturate(180%) blur(20px);
+  backdrop-filter: saturate(180%) blur(20px); position: sticky; top: 40vh; z-index: 99;
+  border-bottom: .5px solid var(--separator); scrollbar-width: none;
+}
+.tabs::-webkit-scrollbar { display: none; }
+.tab {
+  flex-shrink: 0; padding: 7px 16px; border-radius: 980px; border: none;
+  background: var(--bg-grouped); color: var(--text-secondary);
+  font-size: 14px; font-weight: 500; cursor: pointer; transition: all .25s ease;
+  white-space: nowrap; letter-spacing: -0.01em;
+}
+.tab:active { transform: scale(.96); }
+.tab.active { background: var(--accent); color: #fff; }
+
+/* ── Main content ── */
+.content { max-width: 680px; margin: 0 auto; padding: 16px 16px calc(24px + var(--safe-bottom)); }
+
+/* ── Overview ── */
+.hero { text-align: center; padding: 28px 20px 20px; }
+.hero h1 { font-size: 28px; font-weight: 700; letter-spacing: -0.025em; line-height: 1.15; }
+.hero .subtitle { font-size: 17px; color: var(--text-secondary); margin-top: 6px; font-weight: 400; }
+
+.info-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 20px; }
+.info-card { background: var(--bg-elevated); border-radius: var(--radius-lg); padding: 16px; box-shadow: var(--shadow-sm); }
+.info-card .label { font-size: 12px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: .02em; margin-bottom: 6px; }
+.info-card .value { font-size: 15px; font-weight: 600; line-height: 1.4; }
+
+/* ── Section headers ── */
+.section-head { font-size: 13px; font-weight: 600; color: var(--text-secondary); text-transform: uppercase; letter-spacing: .03em; padding: 20px 0 8px; }
+
+/* ── Day header ── */
+.day-head { padding: 20px 0 12px; }
+.day-head h2 { font-size: 22px; font-weight: 700; letter-spacing: -0.02em; }
+.day-head p { font-size: 15px; color: var(--text-secondary); margin-top: 2px; }
+
+/* ── Route bar ── */
+.route-bar { background: var(--bg-elevated); border-radius: var(--radius-md); padding: 12px 14px; margin-bottom: 14px; box-shadow: var(--shadow-sm); font-size: 13px; color: var(--text-secondary); line-height: 1.7; white-space: pre-line; }
+.route-bar strong { color: var(--text-primary); }
+
+/* ── Timeline ── */
+.timeline { position: relative; padding-left: 24px; }
+.timeline::before { content: ''; position: absolute; left: 7px; top: 20px; bottom: 20px; width: 1.5px; background: var(--separator); }
+.tl-item { position: relative; margin-bottom: 10px; }
+.tl-dot { position: absolute; left: -20px; top: 18px; width: 10px; height: 10px; border-radius: 50%; z-index: 1; box-shadow: 0 0 0 3px var(--bg-secondary); }
+.tl-dot.food    { background: var(--tint-red); }
+.tl-dot.spot    { background: var(--tint-blue); }
+.tl-dot.hotel   { background: var(--tint-orange); }
+.tl-dot.drink   { background: var(--tint-purple); }
+.tl-dot.transport { background: var(--text-tertiary); }
+
+/* ── Card ── */
+.card { background: var(--bg-elevated); border-radius: var(--radius-md); padding: 14px 16px; box-shadow: var(--shadow-sm); transition: box-shadow .25s ease; cursor: pointer; }
+.card:active { box-shadow: var(--shadow-md); }
+.card .time { font-size: 12px; font-weight: 600; color: var(--text-tertiary); letter-spacing: .01em; }
+.card .name { font-size: 17px; font-weight: 600; margin: 2px 0 4px; letter-spacing: -0.01em; display: flex; align-items: center; gap: 6px; }
+.card .desc { font-size: 14px; color: var(--text-secondary); line-height: 1.45; }
+
+/* Badge */
+.badge { display: inline-flex; align-items: center; font-size: 11px; font-weight: 700; padding: 1px 7px; border-radius: 4px; }
+.badge.food   { background: rgba(255,59,48,.1);  color: var(--tint-red); }
+.badge.spot   { background: rgba(0,122,255,.1);  color: var(--tint-blue); }
+.badge.drink  { background: rgba(175,82,222,.1); color: var(--tint-purple); }
+
+/* Budget */
+.budget { display: inline-block; margin-top: 6px; padding: 3px 10px; background: var(--bg-grouped); border-radius: var(--radius-sm); font-size: 12px; color: var(--text-secondary); font-weight: 500; }
+
+/* Payment */
+.pays { display: flex; gap: 4px; flex-wrap: wrap; margin-top: 6px; }
+.pay { font-size: 11px; padding: 2px 7px; border-radius: 4px; font-weight: 600; }
+.pay.ok  { background: rgba(52,199,89,.1);  color: var(--tint-green); }
+.pay.no  { background: rgba(255,59,48,.08); color: var(--tint-red); }
+.pay.idk { background: rgba(255,149,0,.1);  color: var(--tint-orange); }
+
+/* Links row */
+.links { display: flex; gap: 8px; margin-top: 10px; flex-wrap: wrap; }
+.btn {
+  display: inline-flex; align-items: center; gap: 4px;
+  padding: 8px 14px; border-radius: var(--radius-sm);
+  font-size: 13px; font-weight: 600; border: none; cursor: pointer;
+  text-decoration: none !important; transition: filter .2s;
+}
+.btn:active { filter: brightness(.9); }
+.btn.nav    { background: var(--accent); color: #fff; }
+.btn.xhs    { background: #ff2442; color: #fff; }
+.btn.dp     { background: #ffa700; color: #fff; }
+.btn.rsv    { background: var(--tint-green); color: #fff; }
+
+/* Action Sheet */
+.as-overlay {
+  position: fixed; inset: 0; z-index: 9999;
+  background: rgba(0,0,0,.35); backdrop-filter: blur(2px);
+  display: flex; align-items: flex-end; justify-content: center;
+  opacity: 0; pointer-events: none; transition: opacity .25s;
+}
+.as-overlay.show { opacity: 1; pointer-events: auto; }
+.as-sheet {
+  width: 100%; max-width: 420px;
+  padding: 0 8px 34px;
+  transform: translateY(100%); transition: transform .3s cubic-bezier(.22,1,.36,1);
+}
+.as-overlay.show .as-sheet { transform: translateY(0); }
+.as-group {
+  background: rgba(255,255,255,.88); backdrop-filter: blur(20px);
+  border-radius: 14px; overflow: hidden; margin-bottom: 8px;
+}
+.as-group .as-item {
+  display: flex; align-items: center; justify-content: center; gap: 8px;
+  padding: 16px; font-size: 18px; color: #007aff; font-weight: 500;
+  border: none; background: none; width: 100%; cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+}
+.as-group .as-item + .as-item { border-top: .5px solid rgba(0,0,0,.12); }
+.as-group .as-item:active { background: rgba(0,0,0,.06); }
+.as-cancel { font-weight: 600; }
+
+/* Details — default open */
+.details {
+  margin-top: 10px; padding-top: 10px;
+  border-top: .5px solid var(--separator);
+  font-size: 13px; color: var(--text-secondary); line-height: 1.6;
+}
+.details.closed { display: none; }
+
+/* ── Overview day list ── */
+.day-list .card { margin-bottom: 8px; }
+.day-list .card .dot { display: inline-block; width: 8px; height: 8px; border-radius: 50%; margin-right: 6px; }
+
+/* ── Payment summary ── */
+.pay-summary { background: var(--bg-elevated); border-radius: var(--radius-md); padding: 14px 16px; box-shadow: var(--shadow-sm); font-size: 13px; line-height: 1.7; margin-bottom: 10px; }
+.pay-summary h4 { font-size: 14px; font-weight: 700; margin-bottom: 4px; }
+.pay-summary .warn { color: var(--tint-red); }
+.pay-summary .ok-text { color: var(--tint-green); }
+
+/* ── Legend ── */
+.legend { display: flex; gap: 14px; flex-wrap: wrap; padding: 8px 0; font-size: 12px; color: var(--text-secondary); }
+.legend-item { display: flex; align-items: center; gap: 5px; }
+.legend-dot { width: 8px; height: 8px; border-radius: 50%; }
+
+/* ── Leaflet overrides ── */
+.leaflet-popup-content-wrapper { border-radius: var(--radius-md) !important; box-shadow: var(--shadow-lg) !important; font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", sans-serif !important; }
+.leaflet-popup-content { font-size: 14px !important; line-height: 1.5 !important; margin: 12px 14px !important; }
+.leaflet-popup-content a { color: var(--accent) !important; }
+.leaflet-popup-tip { background: #fff !important; }
+.leaflet-control-zoom a { width: 34px !important; height: 34px !important; line-height: 34px !important; font-size: 16px !important; border-radius: 10px !important; background: rgba(255,255,255,.85) !important; -webkit-backdrop-filter: blur(10px) !important; backdrop-filter: blur(10px) !important; border: .5px solid var(--separator) !important; color: var(--text-primary) !important; }
+.leaflet-control-zoom { border-radius: 12px !important; overflow: hidden; box-shadow: var(--shadow-md) !important; border: none !important; }
+.leaflet-control-attribution { font-size: 9px !important; opacity: .5; }
+</style>
+</head>
+<body>
+
+<div id="map"></div>
+<div class="tabs" id="tabs"></div>
+<div class="content" id="content"></div>
+
+<script>
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  REPLACE THIS SECTION — Hotel and Days data                 ║
+// ╚══════════════════════════════════════════════════════════════╝
+
+const HOTEL = { name: '推荐住宿中心：江汉路 / 循礼门', lat: 30.5849, lng: 114.2857 };
+
+const DAYS = [
+  { id: 0, label: '总览', color: '#0071e3', locations: [] },
+  {
+    id: 1,
+    label: 'D1 抵达',
+    date: '6月19日 周五｜下午抵达，晚上汉口江滩',
+    title: '落地不折腾：江汉路、江汉关、江滩夜景',
+    color: '#ff9500',
+    locations: [
+      { name: '武汉天河国际机场', lat: 30.7766, lng: 114.2081, type: 'transport', time: '16:30', desc: '深圳飞武汉，按下午到达预估。落地后优先去酒店放行李。', detail: '若实际航班较晚，直接删掉江汉路闲逛，只保留江汉关和江滩夜景。', gmap: '武汉天河国际机场' },
+      { name: '推荐住宿中心：江汉路 / 循礼门', lat: 30.5849, lng: 114.2857, type: 'hotel', time: '18:00', desc: '建议订江汉路、循礼门、江汉关一带：晚上步行看江滩，去机场也能走地铁2号线。', detail: '订房优先级：近地铁2号线 > 评分高且近两年评价干净 > 可取消 > 隔音评价稳定。候选方向：全季/汉庭优佳/亚朵/桔子等连锁在江汉路、循礼门、江汉关附近的门店。具体门店下单前请再核对近半年差评。', xhsKeyword: '武汉 江汉路 酒店 干净 方便 情侣', dianpingKeyword: '武汉 江汉路 酒店', gmap: '江汉路 循礼门 武汉' },
+      { name: '江汉路步行街', lat: 30.5819, lng: 114.2892, type: 'spot', time: '19:00', desc: '落地后的城市散步，老建筑、商业街和小吃都集中。不要把这里当打卡任务，边走边找不排队的店。', detail: '这晚只做“进入武汉状态”。如果累了，买点饮料直接去江滩坐着。', xhsKeyword: '武汉 江汉路 晚上 散步', dianpingKeyword: '江汉路 小吃 不排队', gmap: '江汉路步行街 武汉' },
+      { name: '三镇民生甜食馆（胜利街附近）', lat: 30.5892, lng: 114.2966, type: 'food', time: '19:40', desc: '第一晚选稳妥早餐/小吃型店：豆皮、糊汤粉、甜食可灵活点，辣度压力小。', budget: '约 ¥20-50/人', detail: '如果排队明显，直接换附近简餐或便利店加餐，不为第一顿饭消耗体力。', pay: { cash: 1, alipay: 1, wechat: 1 }, xhsKeyword: '武汉 三镇民生甜食馆 胜利街', dianpingKeyword: '三镇民生甜食馆 胜利街', gmap: '三镇民生甜食馆 胜利街 武汉' },
+      { name: '江汉关博物馆 / 江汉关大楼', lat: 30.5796, lng: 114.2920, type: 'spot', time: '20:30', desc: '汉口江边地标，适合晚上拍外立面。内部参观看开放情况，不作为硬安排。', detail: '这段可以和江汉路、沿江大道连成一条轻松步行线。', xhsKeyword: '江汉关 夜景 拍照', gmap: '江汉关博物馆 武汉' },
+      { name: '汉口江滩', lat: 30.5905, lng: 114.3020, type: 'spot', time: '21:00', desc: '第一晚最值得保留的点。吹江风、看夜景，适合情侣轻松收尾。', detail: '注意端午人流，别硬挤热门机位；沿江走一小段就好。', xhsKeyword: '汉口江滩 夜景 情侣', gmap: '汉口江滩 武汉' }
+    ]
+  },
+  {
+    id: 2,
+    label: 'D2 武昌',
+    date: '6月20日 周六｜黄鹤楼 + 粮道街 + 轮渡回汉口',
+    title: '历史文化和老街巷，下午别排太满',
+    color: '#007aff',
+    locations: [
+      { name: '推荐住宿中心：江汉路 / 循礼门', lat: 30.5849, lng: 114.2857, type: 'hotel', time: '09:30', desc: '轻松起床，不抢早高峰。去黄鹤楼建议地铁/打车到武昌。', gmap: '江汉路 循礼门 武汉' },
+      { name: '黄鹤楼公园', lat: 30.5465, lng: 114.2978, type: 'spot', time: '10:30', desc: '武汉经典历史地标，安排上午去，避开下午热和人潮。', budget: '门票需以官方为准', detail: '只保留黄鹤楼主楼和蛇山视角，不把整个公园逛满。端午建议提前看票务/入园预约。', xhsKeyword: '黄鹤楼 端午 人少 拍照', gmap: '黄鹤楼 武汉' },
+      { name: '司门口黄鹤楼地铁站周边', lat: 30.5485, lng: 114.3026, type: 'spot', time: '12:20', desc: '从黄鹤楼出来转入司门口，连接粮道街吃饭，比专门跑远吃名店更顺。', detail: '如果天气热，就减少户外步行，直接打车/骑行到粮道街。', xhsKeyword: '司门口 黄鹤楼 周边', gmap: '司门口黄鹤楼站 武汉' },
+      { name: '粮道街午餐区', lat: 30.5466, lng: 114.3147, type: 'food', time: '12:45', desc: '老街小吃集中区。目标不是网红排队，而是找豆皮、烧麦、汤粉、藕汤等不太辣的补给。', budget: '约 ¥30-70/人', detail: '赵师傅油饼包烧麦等名店如果排队长就放弃。你们偏轻松，不建议为一口网红小吃排 40 分钟。', pay: { cash: 1, alipay: 1, wechat: 1 }, xhsKeyword: '武汉 粮道街 不排队 好吃', dianpingKeyword: '粮道街 不辣 小吃', gmap: '粮道街 武汉' },
+      { name: '昙华林', lat: 30.5530, lng: 114.3158, type: 'spot', time: '14:20', desc: '老街、坡道、小店和拍照点，适合饭后慢慢散步。', detail: '商业化程度较高，按“顺路休息+拍照”看待，不用每家店都逛。', xhsKeyword: '昙华林 拍照 情侣', gmap: '昙华林 武汉' },
+      { name: '中华路码头', lat: 30.5533, lng: 114.2929, type: 'transport', time: '16:30', desc: '坐轮渡回汉口，把过江本身变成体验。天气不好就直接地铁回酒店。', budget: '公交轮渡票价很低，以现场为准', detail: '常用路线是中华路到武汉关，节假日班次和排队以现场公告为准。', xhsKeyword: '武汉轮渡 中华路 武汉关 傍晚', gmap: '中华路码头 武汉' },
+      { name: '武汉关码头', lat: 30.5797, lng: 114.2929, type: 'transport', time: '17:00', desc: '轮渡抵达汉口，回到江汉路/江滩区域。', detail: '如果傍晚天气好，可以沿江再走一小段；累了就回酒店休息。', gmap: '武汉关码头 武汉' },
+      { name: '汉口老街区晚餐候选', lat: 30.5842, lng: 114.2978, type: 'food', time: '18:30', desc: '晚餐建议在酒店附近找湖北菜/家常菜，点藕汤、清蒸/不辣菜，避开重油重辣。', budget: '约 ¥80-150/人', detail: '下单前看大众点评近半年差评关键词：排队久、预制感、服务差、太辣。不要为了网红店绕路。', pay: { cash: 1, alipay: 1, wechat: 1 }, xhsKeyword: '武汉 汉口 不辣 湖北菜 好吃', dianpingKeyword: '汉口 江汉路 湖北菜 不辣', gmap: '江汉路 湖北菜 武汉' }
+    ]
+  },
+  {
+    id: 3,
+    label: 'D3 省博东湖',
+    date: '6月21日 周日｜湖北省博物馆 + 东湖轻松散步',
+    title: '室内文化半天，下午去东湖留白',
+    color: '#34c759',
+    locations: [
+      { name: '推荐住宿中心：江汉路 / 循礼门', lat: 30.5849, lng: 114.2857, type: 'hotel', time: '09:00', desc: '今天去武昌东湖片区，建议打车或地铁到省博。', gmap: '江汉路 循礼门 武汉' },
+      { name: '湖北省博物馆', lat: 30.5639, lng: 114.3589, type: 'spot', time: '10:00', desc: '最适合端午避热的核心点。重点看曾侯乙编钟、越王勾践剑、楚文化展。', budget: '通常免费预约，规则以官方为准', detail: '强烈建议提前预约。别把每个展厅都扫完，2.5-3 小时足够舒服。周一通常闭馆，但你们是周日去。', xhsKeyword: '湖北省博物馆 预约 编钟 越王勾践剑', gmap: '湖北省博物馆 武汉' },
+      { name: '湖北美术馆（可选）', lat: 30.5629, lng: 114.3604, type: 'spot', time: '—', desc: '省博旁边的室内备选。若天气热或下雨，可替代东湖户外。', detail: '看当天展览和开放情况；不是硬安排。', xhsKeyword: '湖北美术馆 当前展览 武汉', gmap: '湖北美术馆 武汉' },
+      { name: '东湖听涛 / 梨园入口', lat: 30.5626, lng: 114.3725, type: 'spot', time: '14:30', desc: '从省博转到东湖最轻松的入口，湖边散步、拍照、吹风。', detail: '不建议今天深度骑完整条绿道，情侣轻松游保留听涛-梨园一小段就够。', xhsKeyword: '东湖 听涛 梨园 情侣 拍照', gmap: '东湖听涛景区 武汉' },
+      { name: '东湖咖啡/茶歇候选', lat: 30.5609, lng: 114.3716, type: 'drink', time: '16:00', desc: '下午留一个坐下来的点，避免全天暴走。店不固定，按现场距离和排队选择。', budget: '约 ¥30-60/人', detail: '原则：有座位、离湖边近、少排队，比“最网红”更重要。', pay: { alipay: 1, wechat: 1 }, xhsKeyword: '东湖 咖啡 湖边 不排队', dianpingKeyword: '东湖 梨园 咖啡', gmap: '东湖梨园 咖啡 武汉' },
+      { name: '楚河汉街晚餐区', lat: 30.5552, lng: 114.3382, type: 'food', time: '18:00', desc: '回汉口前的稳妥晚餐区，选择多、交通方便。适合找不辣湖北菜或商场简餐。', budget: '约 ¥80-160/人', detail: '这里不追求“巷子感”，追求轻松和选择多。若你们更想街头感，可回江汉路附近吃。', pay: { cash: 1, alipay: 1, wechat: 1 }, xhsKeyword: '楚河汉街 不辣 晚餐', dianpingKeyword: '楚河汉街 湖北菜 不辣', gmap: '楚河汉街 武汉' }
+    ]
+  },
+  {
+    id: 4,
+    label: 'D4 返程',
+    date: '6月22日 周一｜汉口轻散步，下午返程',
+    title: '不跑远：古德寺或黎黄陂路，留足去机场时间',
+    color: '#af52de',
+    locations: [
+      { name: '推荐住宿中心：江汉路 / 循礼门', lat: 30.5849, lng: 114.2857, type: 'hotel', time: '09:30', desc: '退房前后寄存行李。最后一天不跨到东湖/远郊。', gmap: '江汉路 循礼门 武汉' },
+      { name: '古德寺', lat: 30.6228, lng: 114.2980, type: 'spot', time: '10:30', desc: '建筑风格特别，拍照友好。作为最后一天半日轻松点。', budget: '门票/香花券以现场为准', detail: '如果天气太热或想更近，改成黎黄陂路/青岛路老建筑散步。', xhsKeyword: '古德寺 拍照 情侣 武汉', gmap: '古德寺 武汉' },
+      { name: '黎黄陂路街头博物馆（备选）', lat: 30.5905, lng: 114.2990, type: 'spot', time: '—', desc: '离江汉路更近的老建筑散步备选，适合不想跑古德寺时替换。', detail: '最后一天推荐二选一：古德寺更出片，黎黄陂路更省交通。', xhsKeyword: '黎黄陂路 拍照 咖啡 武汉', gmap: '黎黄陂路 武汉' },
+      { name: '江汉路附近午餐/打包', lat: 30.5832, lng: 114.2900, type: 'food', time: '12:30', desc: '返程前不冒险排队，选酒店附近干净、出餐稳定的店。', budget: '约 ¥40-100/人', detail: '你不太能吃辣，点单关键词：少辣/不辣、藕汤、豆皮、清炒、蒸菜。', pay: { cash: 1, alipay: 1, wechat: 1 }, xhsKeyword: '江汉路 不辣 午餐 武汉', dianpingKeyword: '江汉路 午餐 不辣', gmap: '江汉路 午餐 武汉' },
+      { name: '武汉天河国际机场', lat: 30.7766, lng: 114.2081, type: 'transport', time: '14:30', desc: '按下午航班预留去机场时间。江汉路/循礼门区域可地铁2号线或打车。', detail: '建议至少提前 2.5 小时从市区出发，端午返程日要给安检和路况留余量。', gmap: '武汉天河国际机场' }
+    ]
+  }
+];
+
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  REPLACE THIS SECTION — Overview tab content                ║
+// ╚══════════════════════════════════════════════════════════════╝
+
+function overviewContent() {
+  return `
+<div class="hero"><h1>武汉端午 3晚4天轻松情侣行程</h1><p class="subtitle">6月19日下午抵达，6月22日下午返程｜住江汉路/循礼门，少赶路，多留白</p></div>
+<div class="info-grid">
+  <div class="info-card"><div class="label">住宿建议</div><div class="value">江汉路 / 循礼门 / 江汉关<br>优先近地铁2号线、干净好评、可取消</div></div>
+  <div class="info-card"><div class="label">交通</div><div class="value">深圳 ⇄ 武汉天河机场<br>市内以地铁 + 打车 + 轮渡体验为主</div></div>
+  <div class="info-card"><div class="label">节奏</div><div class="value">情侣轻松游<br>每天一个主区域，不为网红店排长队</div></div>
+  <div class="info-card"><div class="label">饮食</div><div class="value">优先不辣/少辣<br>热干面、豆皮、藕汤、烧麦、湖北家常菜</div></div>
+</div>
+<div class="section-head">行程概览</div>
+<div class="day-list">${DAYS.slice(1).map(d=>`<div class="card" onclick="go(${d.id})"><div class="name"><span class="dot" style="background:${d.color}"></span>${d.label} · ${d.title}</div><div class="desc">${d.date}</div></div>`).join('')}</div>
+<div class="section-head">住宿怎么选</div>
+<div class="pay-summary"><h4>首选：江汉路 / 循礼门</h4>这次不建议换酒店。这个区域第一晚看江滩最顺，最后一天去机场也方便；去黄鹤楼、省博、东湖时跨江一次即可。订房时优先看近半年差评里的“卫生、隔音、空调、异味、前台处理”。</div>
+<div class="pay-summary"><h4>候选类型</h4>不用追豪华，优先选评分稳定的连锁中端或干净商务型：全季、亚朵、桔子、汉庭优佳等在江汉路/循礼门/江汉关附近的门店。下单前再用小红书/大众点评搜“门店名 + 卫生/隔音/避雷”。</div>
+<div class="section-head">关键提醒</div>
+<div class="pay-summary"><h4>预约</h4><span class="warn">湖北省博物馆建议提前预约</span>；黄鹤楼端午人多，建议提前查看票务和入园规则。轮渡班次、码头调整以当天公告为准。</div>
+<div class="pay-summary"><h4>天气</h4>武汉 6 月通常闷热，户外点都按“可缩短”处理。若下雨/太热，D3 的东湖散步可替换成湖北美术馆或商场休息。</div>
+<div class="section-head">图例</div>
+<div class="legend">
+  <div class="legend-item"><div class="legend-dot" style="background:var(--tint-red)"></div>餐厅/小吃</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--tint-blue)"></div>景点</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--tint-purple)"></div>咖啡/备选</div>
+  <div class="legend-item"><div class="legend-dot" style="background:var(--tint-orange)"></div>住宿</div>
+</div>`;
+}
+// ╔══════════════════════════════════════════════════════════════╗
+// ║  ENGINE — Do not modify below unless customizing behavior   ║
+// ╚══════════════════════════════════════════════════════════════╝
+
+const map = L.map('map', { center: [HOTEL.lat || 35.69, HOTEL.lng || 139.74], zoom: 12, zoomControl: false, attributionControl: true });
+L.control.zoom({ position: 'topright' }).addTo(map);
+L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png', { maxZoom: 19 }).addTo(map);
+
+/* ── Geolocation ── */
+const LocateControl = L.Control.extend({
+  options: { position: 'bottomright' },
+  onAdd() {
+    const btn = L.DomUtil.create('button', 'locate-btn');
+    btn.innerHTML = '📍';
+    btn.title = '我的位置';
+    L.DomEvent.disableClickPropagation(btn);
+    btn.addEventListener('click', () => {
+      btn.classList.add('active');
+      map.locate({ setView: true, maxZoom: 15 });
+    });
+    this._btn = btn;
+    return btn;
+  }
+});
+new LocateControl().addTo(map);
+let locMarker, locCircle;
+map.on('locationfound', e => {
+  const r = e.accuracy / 2;
+  if (locMarker) { locMarker.setLatLng(e.latlng); locCircle.setLatLng(e.latlng).setRadius(r); }
+  else {
+    locMarker = L.marker(e.latlng, {
+      icon: L.divIcon({ className:'', html:'<div style="width:14px;height:14px;border-radius:50%;background:#007aff;border:2.5px solid #fff;box-shadow:0 0 6px rgba(0,122,255,.5)"></div><div class="loc-pulse" style="position:absolute;top:0;left:0"></div>', iconSize:[14,14], iconAnchor:[7,7] }),
+      zIndexOffset: 2000
+    }).addTo(map);
+    locCircle = L.circle(e.latlng, { radius: r, color: '#007aff', fillColor: '#007aff', fillOpacity: .08, weight: 1 }).addTo(map);
+  }
+});
+map.on('locationerror', () => {});
+
+function icon(color, emoji) {
+  return L.divIcon({ className: '', html: `<div style="width:28px;height:28px;border-radius:50%;background:${color};border:2.5px solid #fff;display:flex;align-items:center;justify-content:center;font-size:13px;box-shadow:0 2px 8px rgba(0,0,0,.18)">${emoji||''}</div>`, iconSize: [28,28], iconAnchor: [14,14], popupAnchor: [0,-16] });
+}
+
+if (HOTEL.lat) L.marker([HOTEL.lat, HOTEL.lng], { icon: icon('#ff9500','🏨'), zIndexOffset: 1000 }).addTo(map).bindPopup(`<b>${HOTEL.name}</b>`);
+
+let markers = [], polylines = [];
+const emojis = { food:'🍽️', spot:'📍', hotel:'🏨', transport:'🚃', drink:'🍺' };
+
+function clearMap() { markers.forEach(m=>map.removeLayer(m)); polylines.forEach(p=>map.removeLayer(p)); markers=[]; polylines=[]; }
+
+function showDay(idx) {
+  clearMap();
+  if (idx === 0) {
+    const pts = [];
+    DAYS.forEach(d => d.locations.forEach(l => { if(l.lat) pts.push([l.lat,l.lng]); }));
+    if(pts.length) map.fitBounds(pts, {padding:[30,30]});
+    DAYS.slice(1).forEach(d => {
+      d.locations.filter(l=>l.time!=='—').forEach(l => {
+        const m = L.circleMarker([l.lat,l.lng], { radius:4, fillColor:d.color, color:'#fff', weight:1.5, fillOpacity:.9 }).addTo(map).bindPopup(`<b>${l.name}</b><br><span style="color:#86868b">${d.label}</span>`);
+        markers.push(m);
+      });
+    });
+    return;
+  }
+  const day = DAYS.find(d=>d.id===idx);
+  if(!day) return;
+  const coords = [];
+  day.locations.forEach(l => {
+    if(!l.lat) return;
+    const m = L.marker([l.lat,l.lng], { icon: icon(day.color, emojis[l.type]||'📌') }).addTo(map);
+    const gmapQ = l.gmap||encodeURIComponent(l.name+' Tokyo');
+    m.bindPopup(`<b>${l.name}</b>${l.time!=='—'?'<br><span style="color:#86868b">'+l.time+'</span>':''}<br>${l.desc}${l.budget?'<br><span style="color:#ff9500">'+l.budget+'</span>':''}<br><a href="#" onclick="event.preventDefault();openAS('${l.name.replace(/'/g,"\\'")}',${l.lat},${l.lng},'${gmapQ}')">📍 导航</a>${l.xhs?' · <a href="'+l.xhs+'" target="_blank">📕 小红书</a>':''}`);
+    markers.push(m);
+    if(l.time!=='—') coords.push([l.lat,l.lng]);
+  });
+  if(coords.length>1) { const pl = L.polyline(coords, { color:day.color, weight:2.5, opacity:.5, dashArray:'6,5' }).addTo(map); polylines.push(pl); }
+  if(coords.length) map.fitBounds(coords, { padding:[40,40], maxZoom:14 });
+}
+
+// ══════════ RENDER ══════════
+function payChips(pay) {
+  if(!pay) return '';
+  let h = '<div class="pays">';
+  const m = { cash:'💴', card:'💳', suica:'Suica', paypay:'PayPay', alipay:'支付宝', wechat:'微信' };
+  for(const [k,label] of Object.entries(m)) {
+    if(pay[k]!==undefined) { const c = pay[k]===1?'ok':pay[k]===0.5?'idk':'no'; h += `<span class="pay ${c}">${label}</span>`; }
+  }
+  return h+'</div>';
+}
+
+// ── 运行环境检测：在第三方 App 的 WebView 里，自定义 scheme 基本会被拦截 ──
+const IN_APP_WEBVIEW = (() => {
+  const ua = (navigator.userAgent || '').toLowerCase();
+  return /micromessenger|xhs|xhsdiscover|discover\/|tiktok|aweme|weibo|qq\/|qqbrowser|alipayclient|dingtalk|lark|feishu|ucbrowser|baiduboxapp|toutiao|newsarticle/.test(ua);
+})();
+
+function xhsKeyword(loc) {
+  if(loc.xhsKeyword) return loc.xhsKeyword.trim();
+  return (loc.name||'').replace(/⭐.*$/g,'').replace(/（.*?）/g,'').replace(/\(.*?\)/g,'').replace(/\s+/g,' ').trim();
+}
+function xhsAppUrl(loc) { return `xhsdiscover://search/result?keyword=${encodeURIComponent(xhsKeyword(loc))}&target_search=notes&source=deeplink`; }
+function xhsWebUrl(loc) { return `https://www.xiaohongshu.com/search_result?keyword=${encodeURIComponent(xhsKeyword(loc))}&source=web_explore_feed`; }
+
+function dpKeyword(loc) {
+  if(loc.dianpingKeyword) return loc.dianpingKeyword.trim();
+  return (loc.name||'').replace(/⭐.*$/g,'').replace(/（.*?）/g,'').replace(/\(.*?\)/g,'').replace(/\s+/g,' ').trim();
+}
+function dpAppUrl(loc) { return `dianping://searchshoplist?keyword=${encodeURIComponent(dpKeyword(loc))}`; }
+function dpWebUrl(loc) { return `https://m.dianping.com/searchshop?keyword=${encodeURIComponent(dpKeyword(loc))}`; }
+
+window._extLocs = {};
+DAYS.forEach(d => d.locations.forEach(l => { window._extLocs[`${d.id}::${l.name}`] = l; }));
+window._xhsLocs = window._extLocs;
+
+function openExt(key, kind) {
+  const loc = window._extLocs[key]; if(!loc) return false;
+  if (IN_APP_WEBVIEW) {
+    window.location.href = kind==='dp' ? dpWebUrl(loc) : xhsWebUrl(loc);
+  } else {
+    window.location.href = kind==='dp' ? dpAppUrl(loc) : xhsAppUrl(loc);
+  }
+  return false;
+}
+function openXhs(key) { return openExt(key, 'xhs'); }
+function openDp(key)  { return openExt(key, 'dp'); }
+
+function locCard(loc, dayIdx) {
+  const dot = loc.type==='food'?'food':loc.type==='spot'?'spot':loc.type==='drink'?'drink':loc.type==='hotel'?'hotel':'transport';
+  const bdg = loc.type==='food'?'<span class="badge food">餐</span>':loc.type==='spot'?'<span class="badge spot">景</span>':loc.type==='drink'?'<span class="badge drink">饮</span>':'';
+  const uid = `d${dayIdx}-${loc.name.replace(/\W/g,'')}`;
+  const locKey = `${dayIdx}::${loc.name}`;
+  const gmapQ = loc.gmap||encodeURIComponent(loc.name+' Tokyo');
+  let lnk = `<button class="btn nav" onclick="openAS('${loc.name.replace(/'/g,"\\'")}',${loc.lat},${loc.lng},'${gmapQ}')">📍 导航</button>`;
+  if(loc.xhs||loc.xhsKeyword) {
+    const xhsHref = IN_APP_WEBVIEW ? xhsWebUrl(loc) : xhsAppUrl(loc);
+    const xhsLabel = IN_APP_WEBVIEW ? '📕 小红书' : '📕 小红书 App';
+    lnk += `<a href="${xhsHref}" onclick="return openXhs('${locKey.replace(/'/g,"\\'")}')" class="btn xhs">${xhsLabel}</a>`;
+  }
+  const dpEnabled = loc.dianping !== false &&
+    (loc.dianping || loc.dianpingKeyword || loc.type==='food' || loc.type==='drink');
+  if(dpEnabled) {
+    const dpHref = IN_APP_WEBVIEW ? dpWebUrl(loc) : dpAppUrl(loc);
+    const dpLabel = IN_APP_WEBVIEW ? '🍜 大众点评' : '🍜 大众点评 App';
+    lnk += `<a href="${dpHref}" onclick="return openDp('${locKey.replace(/'/g,"\\'")}')" class="btn dp">${dpLabel}</a>`;
+  }
+  if(loc.reserve) lnk += `<a href="${loc.reserve}" target="_blank" class="btn rsv">📅 预约</a>`;
+  return `<div class="tl-item"><div class="tl-dot ${dot}"></div><div class="card" onclick="if(!event.target.closest('.btn,.links'))toggle('${uid}')"><div class="time">${loc.time!=='—'?loc.time:'备选'}</div><div class="name">${bdg} ${loc.name}</div><div class="desc">${loc.desc}</div>${loc.budget?'<div class="budget">'+loc.budget+'</div>':''}${payChips(loc.pay)}<div class="links">${lnk}</div>${loc.detail?'<div class="details" id="'+uid+'">'+loc.detail.replace(/\n/g,'<br>')+'</div>':''}</div></div>`;
+}
+
+function renderDay(idx) {
+  const d = DAYS.find(x=>x.id===idx); if(!d) return '';
+  const main = d.locations.filter(l=>l.time!=='—');
+  const alt = d.locations.filter(l=>l.time==='—');
+  let h = `<div class="day-head"><h2>${d.title}</h2><p>${d.date}</p></div>`;
+  if(main.length) { h += '<div class="section-head">行程</div><div class="timeline">'; main.forEach(l => h += locCard(l, idx)); h += '</div>'; }
+  if(alt.length) { h += '<div class="section-head">备选</div><div class="timeline">'; alt.forEach(l => h += locCard(l, idx)); h += '</div>'; }
+  return h;
+}
+
+// ══════════ NAV ══════════
+let cur = 0;
+const tabsEl = document.getElementById('tabs');
+const contentEl = document.getElementById('content');
+
+DAYS.forEach(d => {
+  const btn = document.createElement('button');
+  btn.className = 'tab' + (d.id===0?' active':'');
+  btn.dataset.day = d.id;
+  btn.textContent = d.label;
+  tabsEl.appendChild(btn);
+});
+
+function go(idx) {
+  cur = idx;
+  tabsEl.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', +t.dataset.day===idx));
+  contentEl.innerHTML = idx===0 ? overviewContent() : renderDay(idx);
+  showDay(idx);
+  contentEl.scrollTo({top:0});
+  const tab = tabsEl.querySelector(`[data-day="${idx}"]`);
+  if(tab) tab.scrollIntoView({behavior:'smooth', inline:'center', block:'nearest'});
+}
+
+function toggle(id) { const el=document.getElementById(id); if(el) el.classList.toggle('closed'); }
+
+tabsEl.addEventListener('click', e => { const t=e.target.closest('.tab'); if(t) go(+t.dataset.day); });
+
+go(0);
+
+/* ── Action Sheet for Navigation ── */
+const asOverlay = document.createElement('div');
+asOverlay.className = 'as-overlay';
+asOverlay.innerHTML = `<div class="as-sheet">
+  <div class="as-group" id="as-opts"></div>
+  <div class="as-group"><button class="as-item as-cancel" onclick="closeAS()">取消</button></div>
+</div>`;
+document.body.appendChild(asOverlay);
+asOverlay.addEventListener('click', e => { if (e.target === asOverlay) closeAS(); });
+
+const IS_IOS = /iPad|iPhone|iPod/.test(navigator.userAgent);
+function amapAppUrl(name, lat, lng) {
+  const scheme = IS_IOS ? 'iosamap' : 'androidamap';
+  return `${scheme}://viewMap?sourceApplication=trip&poiname=${encodeURIComponent(name)}&lat=${lat}&lon=${lng}&dev=0`;
+}
+function amapWebUrl(name, lat, lng) {
+  return `https://uri.amap.com/marker?position=${lng},${lat}&name=${encodeURIComponent(name)}&src=trip&coordinate=wgs84&callnative=1`;
+}
+function openAmap(name, lat, lng) {
+  if (IN_APP_WEBVIEW) { window.open(amapWebUrl(name, lat, lng)); return; }
+  window.location.href = amapAppUrl(name, lat, lng);
+}
+
+function openAS(name, lat, lng, gmap) {
+  const q = gmap || encodeURIComponent(name + ' Tokyo');
+  const encName = encodeURIComponent(name);
+  const safeName = name.replace(/'/g,"\\'");
+  // WebView 内 maps:// 通常被拦截，改用 https Apple Maps URL —— iOS 系统会自动拉起 Apple Maps
+  const appleUrl = IN_APP_WEBVIEW
+    ? `https://maps.apple.com/?q=${lat},${lng}&ll=${lat},${lng}&name=${encName}`
+    : `maps://maps.apple.com/?q=${lat},${lng}&name=${encName}`;
+  const googleUrl = `https://www.google.com/maps/search/?api=1&query=${q}`;
+  document.getElementById('as-opts').innerHTML =
+    `<button class="as-item" onclick="window.open('${appleUrl}');closeAS()">🍎 Apple Maps</button>` +
+    `<button class="as-item" onclick="window.open('${googleUrl}');closeAS()">🗺️ Google Maps</button>` +
+    `<button class="as-item" onclick="openAmap('${safeName}',${lat},${lng});closeAS()">🧭 高德地图 App</button>`;
+  asOverlay.classList.add('show');
+}
+function closeAS() { asOverlay.classList.remove('show'); }
+</script>
+</body>
+</html>
+
+

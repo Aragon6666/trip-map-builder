@@ -1,0 +1,78 @@
+﻿<svg xmlns="http://www.w3.org/2000/svg" width="1180" height="720" viewBox="0 0 1180 720" role="img" aria-labelledby="title desc">
+  <title id="title">Trip Map Builder execution flow</title>
+  <desc id="desc">A concise flowchart showing how trip-map-builder moves from user inputs through planning, research, map data filling, Leaflet rendering, and optional deployment.</desc>
+  <defs>
+    <style>
+      .bg{fill:#f7f9fc}.box{fill:#fff;stroke:#d8e1ee;stroke-width:2}.box2{fill:#eef6ff;stroke:#9ecbff;stroke-width:2}.box3{fill:#f4fff2;stroke:#a8d99c;stroke-width:2}.box4{fill:#fff6ec;stroke:#ffc27a;stroke-width:2}.title{font:700 24px Arial,"Microsoft YaHei",sans-serif;fill:#172033}.h{font:700 18px Arial,"Microsoft YaHei",sans-serif;fill:#172033}.t{font:14px Arial,"Microsoft YaHei",sans-serif;fill:#344054}.s{font:12px Consolas,"Microsoft YaHei",monospace;fill:#475467}.arrow{stroke:#667085;stroke-width:2.5;fill:none;marker-end:url(#arrow)}.dash{stroke:#98a2b3;stroke-width:2;fill:none;stroke-dasharray:7 6;marker-end:url(#arrow)}
+    </style>
+    <marker id="arrow" markerWidth="10" markerHeight="10" refX="8" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#667085" />
+    </marker>
+  </defs>
+  <rect class="bg" x="0" y="0" width="1180" height="720" rx="18"/>
+  <text class="title" x="48" y="48">Trip Map Builder：从碎片信息到可打开的行程地图页</text>
+
+  <rect class="box" x="48" y="90" width="230" height="112" rx="12"/>
+  <text class="h" x="70" y="124">1. 用户输入</text>
+  <text class="t" x="70" y="153">机票 / 酒店 / 想去地点</text>
+  <text class="t" x="70" y="176">人数、预算、偏好、禁忌</text>
+
+  <rect class="box2" x="338" y="90" width="230" height="112" rx="12"/>
+  <text class="h" x="360" y="124">2. Plan</text>
+  <text class="t" x="360" y="153">抽取硬约束，按区域分组</text>
+  <text class="t" x="360" y="176">删高风险点，排每日节奏</text>
+
+  <rect class="box2" x="628" y="90" width="230" height="112" rx="12"/>
+  <text class="h" x="650" y="124">3. Research</text>
+  <text class="t" x="650" y="153">大众点评：口味/排队/价格</text>
+  <text class="t" x="650" y="176">小红书：氛围/近期体验</text>
+
+  <rect class="box3" x="918" y="90" width="214" height="112" rx="12"/>
+  <text class="h" x="940" y="124">4. 结构化数据</text>
+  <text class="s" x="940" y="153">HOTEL = {name, lat, lng}</text>
+  <text class="s" x="940" y="176">DAYS = [{locations: []}]</text>
+
+  <path class="arrow" d="M278 146 H332"/>
+  <path class="arrow" d="M568 146 H622"/>
+  <path class="arrow" d="M858 146 H912"/>
+
+  <rect class="box4" x="144" y="290" width="260" height="124" rx="12"/>
+  <text class="h" x="166" y="324">5. 填入模板</text>
+  <text class="s" x="166" y="354">assets/template.html → index.html</text>
+  <text class="t" x="166" y="379">替换标题、总览、每日地点</text>
+
+  <rect class="box4" x="460" y="290" width="260" height="124" rx="12"/>
+  <text class="h" x="482" y="324">6. Leaflet 渲染</text>
+  <text class="t" x="482" y="354">加载真实地图瓦片</text>
+  <text class="t" x="482" y="379">生成 marker、polyline、tabs</text>
+
+  <rect class="box4" x="776" y="290" width="260" height="124" rx="12"/>
+  <text class="h" x="798" y="324">7. 交互地图页</text>
+  <text class="t" x="798" y="354">按天切换、时间线卡片</text>
+  <text class="t" x="798" y="379">Apple / Google / 高德导航</text>
+
+  <path class="arrow" d="M1025 202 V242 C1025 270 1000 290 970 290 H906"/>
+  <path class="arrow" d="M404 352 H454"/>
+  <path class="arrow" d="M720 352 H770"/>
+
+  <rect class="box" x="180" y="505" width="260" height="104" rx="12"/>
+  <text class="h" x="202" y="539">可选：共享记忆</text>
+  <text class="s" x="202" y="568">~/.trip-map-builder/MEMORY.md</text>
+  <text class="t" x="202" y="591">保存长期偏好，不保存敏感材料</text>
+
+  <rect class="box" x="520" y="505" width="260" height="104" rx="12"/>
+  <text class="h" x="542" y="539">可选：调研工具</text>
+  <text class="s" x="542" y="568">OpenCLI + Chrome CDP</text>
+  <text class="t" x="542" y="591">用于大众点评/小红书信号采集</text>
+
+  <rect class="box" x="860" y="505" width="220" height="104" rx="12"/>
+  <text class="h" x="882" y="539">可选：部署</text>
+  <text class="s" x="882" y="568">GitHub + Vercel</text>
+  <text class="t" x="882" y="591">手机浏览器直接打开</text>
+
+  <path class="dash" d="M310 505 C330 455 330 425 284 414"/>
+  <path class="dash" d="M650 505 C665 452 680 426 720 414"/>
+  <path class="dash" d="M970 505 V420"/>
+
+  <text class="t" x="48" y="674">核心判断：这个仓库主要提供“规划方法 + 调研参考 + HTML 地图模板”，不是一个带完整自动化流水线的应用。</text>
+</svg>

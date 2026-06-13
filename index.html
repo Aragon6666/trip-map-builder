@@ -1,0 +1,55 @@
+﻿<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Trip Map Builder - 我的旅行地图</title>
+<meta name="description" content="按目的地归档的旅行规划地图入口。">
+<style>
+:root { color-scheme: light; --bg:#f6f7f9; --card:#fff; --text:#172033; --muted:#667085; --line:#d8e1ee; --accent:#0071e3; }
+* { box-sizing: border-box; }
+body { margin:0; font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",sans-serif; background:var(--bg); color:var(--text); }
+main { max-width: 920px; margin: 0 auto; padding: 40px 20px; }
+header { margin-bottom: 28px; }
+h1 { margin:0 0 8px; font-size: 32px; line-height:1.15; letter-spacing:0; }
+p { margin:0; color:var(--muted); line-height:1.65; }
+.grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap:16px; margin-top:24px; }
+.card { display:block; padding:20px; border:1px solid var(--line); border-radius:12px; background:var(--card); color:inherit; text-decoration:none; box-shadow:0 1px 3px rgba(16,24,40,.06); }
+.card:hover { border-color: var(--accent); }
+.kicker { font-size:13px; font-weight:700; color:var(--accent); margin-bottom:8px; }
+.card h2 { margin:0 0 8px; font-size:20px; }
+.meta { margin-top:14px; display:flex; gap:8px; flex-wrap:wrap; }
+.tag { font-size:12px; padding:4px 8px; border-radius:999px; background:#eef6ff; color:#175cd3; }
+.section { margin-top:34px; padding:18px 20px; background:#fff; border:1px solid var(--line); border-radius:12px; }
+.section h2 { margin:0 0 8px; font-size:18px; }
+code { font-family: ui-monospace, SFMono-Regular, Consolas, monospace; font-size:.95em; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>我的旅行地图</h1>
+    <p>这里保存每次旅行的需求、调研、行程数据和最终地图页。长期偏好放在 <code>memory/</code>，单次旅行放在 <code>trips/</code>。</p>
+  </header>
+
+  <section class="grid" aria-label="Trip list">
+    <a class="card" href="./trips/2606_wuhan/">
+      <div class="kicker">2026 · 端午</div>
+      <h2>武汉 3晚4天轻松情侣行</h2>
+      <p>江汉路/循礼门住宿中心，黄鹤楼、汉口江滩、湖北省博物馆、东湖与街巷小吃。</p>
+      <div class="meta">
+        <span class="tag">轻松</span>
+        <span class="tag">情侣游</span>
+        <span class="tag">少辣</span>
+        <span class="tag">真实地图</span>
+      </div>
+    </a>
+  </section>
+
+  <section class="section">
+    <h2>新增目的地的目录约定</h2>
+    <p>新旅行使用 <code>trips/YYMM_destination/</code> 命名，例如 <code>trips/2606_wuhan/</code>。每个目录至少包含 <code>requirements.md</code>、<code>research.md</code>、<code>itinerary.md</code>、<code>trip_data.js</code> 和 <code>index.html</code>。</p>
+  </section>
+</main>
+</body>
+</html>
